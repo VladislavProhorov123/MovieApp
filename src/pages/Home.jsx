@@ -21,19 +21,21 @@ const API_OPTIONS = {
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [trendingMovies, setTrendingMovies] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
   const [isTrendingLoading, setIsTrendingLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [movieList, setMovieList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  const fetchMovies = async (query = "") => {
+  const fetchMovies = async (query = "", pageNumber = 1) => {
     setIsLoading(true);
     setErrorMessage("");
     try {
       const endpoint = query
-        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${pageNumber}`
+        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${pageNumber}`;
 
       const response = await fetch(endpoint, API_OPTIONS);
 
@@ -50,6 +52,7 @@ export default function Home() {
       }
 
       setMovieList(data.results || []);
+      setTotalPage(data.total_pages || 1);
     } catch (error) {
       console.error(`Error fetching movies: ${error}`);
       setErrorMessage("Error fetching movies. Please try again later.");
@@ -57,10 +60,6 @@ export default function Home() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchMovies(debouncedSearchTerm);
-  }, [debouncedSearchTerm]);
 
   const fetchTrendingMovies = async () => {
     setIsTrendingLoading(true);
@@ -77,6 +76,14 @@ export default function Home() {
       setIsTrendingLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMovies(debouncedSearchTerm, page);
+  }, [debouncedSearchTerm, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearchTerm]);
 
   useEffect(() => {
     fetchTrendingMovies();
@@ -108,9 +115,9 @@ export default function Home() {
             ) : (
               <ul>
                 {trendingMovies.slice(0, 5).map((movie) => (
-                    <Link key={movie.id} to={`/movie/${movie.id}`}>
-                      <MovieCard  movie={movie} />
-                    </Link>
+                  <Link key={movie.id} to={`/movie/${movie.id}`}>
+                    <MovieCard movie={movie} />
+                  </Link>
                 ))}
               </ul>
             )}
@@ -127,7 +134,7 @@ export default function Home() {
               <ul>
                 {movieList.map((movie) => (
                   <Link key={movie.id} to={`/movie/${movie.id}`}>
-                    <MovieCard  movie={movie} />
+                    <MovieCard movie={movie} />
                   </Link>
                 ))}
               </ul>
@@ -135,6 +142,28 @@ export default function Home() {
 
             {errorMessage && <p className="text-red-500">{errorMessage}</p>}
           </section>
+        </div>
+
+        <div className="flex items-center justify-center gap-4 mt-10 text-white pb-10">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="px-4 py-2 bg-white/10 rounded disabled:opacity-30 cursor-pointer"
+          >
+            Prev
+          </button>
+
+          <span className="text-sm text-gray-300">
+            Page {page} / {totalPage}
+          </span>
+
+          <button
+            disabled={page === totalPage}
+            onClick={() => setPage((p) => p + 1)}
+            className="px-4 py-2 bg-white/10 rounded disabled:opacity-30 cursor-pointer"
+          >
+            Next
+          </button>
         </div>
       </div>
     </main>
