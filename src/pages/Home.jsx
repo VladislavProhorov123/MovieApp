@@ -108,8 +108,8 @@ export default function Home() {
             ) : (
               <ul>
                 {trendingMovies.slice(0, 5).map((movie) => (
-                    <Link to={`/movie/${movie.id}`}>
-                      <MovieCard key={movie.id} movie={movie} />
+                    <Link key={movie.id} to={`/movie/${movie.id}`}>
+                      <MovieCard  movie={movie} />
                     </Link>
                 ))}
               </ul>
@@ -126,8 +126,8 @@ export default function Home() {
             ) : (
               <ul>
                 {movieList.map((movie) => (
-                  <Link to={`/movie/${movie.id}`}>
-                    <MovieCard key={movie.id} movie={movie} />
+                  <Link key={movie.id} to={`/movie/${movie.id}`}>
+                    <MovieCard  movie={movie} />
                   </Link>
                 ))}
               </ul>
