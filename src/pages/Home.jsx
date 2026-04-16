@@ -4,6 +4,7 @@ import Spinner from "../components/Spinner";
 import MovieCard from "../components/MovieCard";
 import useDebounce from "../hook/useDebounce";
 import { Link } from "react-router-dom";
+import { endpoints } from "../api/tmdb";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 
@@ -19,6 +20,8 @@ const API_OPTIONS = {
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [isTrendingLoading, setIsTrendingLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [movieList, setMovieList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +62,26 @@ export default function Home() {
     fetchMovies(debouncedSearchTerm);
   }, [debouncedSearchTerm]);
 
+  const fetchTrendingMovies = async () => {
+    setIsTrendingLoading(true);
+
+    try {
+      const res = await fetch(endpoints.trending(), API_OPTIONS);
+
+      const data = await res.json();
+
+      setTrendingMovies(data.results || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsTrendingLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrendingMovies();
+  }, []);
+
   return (
     <main>
       <div className="pattern">
@@ -76,6 +99,22 @@ export default function Home() {
 
             <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </header>
+
+          <section className="trending">
+            <h2 className="mb-[20px]">Trending</h2>
+
+            {isTrendingLoading ? (
+              <Spinner />
+            ) : (
+              <ul>
+                {trendingMovies.slice(0, 5).map((movie) => (
+                    <Link to={`/movie/${movie.id}`}>
+                      <MovieCard key={movie.id} movie={movie} />
+                    </Link>
+                ))}
+              </ul>
+            )}
+          </section>
 
           <section className="all-movies">
             <h2 className="mt-[40px]">All Movies</h2>
