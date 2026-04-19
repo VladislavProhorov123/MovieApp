@@ -6,26 +6,26 @@ export const useFavorites = create(
     (set, get) => ({
       favorites: [],
 
-      addFavorive: (movie) => set((state) => {
-        if(state.favorites.some((m) => m.id === movie.id)) {
-          return state
-        }
+      toggleFavorite: (movie) =>
+        set((state) => {
+          const exists = state.favorites.some((m) => m.id === movie.id);
 
-        return {
-          favorites: [...state.favorites, movie]
-        }
-      }),
+          if (exists) {
+            return {
+              favorites: state.favorites.filter((m) => m.id !== movie.id),
+            };
+          }
 
-      removeFavorite: (id) => set((state) => ({
-        favorites: state.favorites.filter((m) => m.id !== id)
-      })),
+          return {
+            favorites: [...state.favorites, movie],
+          };
+        }),
 
-      isFavorite: (id) => {
-        return get().favorites.some((m) => m.id === id)
-      }
+      isFavorite: (id) => get().favorites.some((m) => m.id === id),
     }),
+
     {
-      name: "favorites-storage"
-    }
-  )
-)
+      name: "favorites-storage",
+    },
+  ),
+);

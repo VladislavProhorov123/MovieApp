@@ -4,6 +4,7 @@ import { API_OPTIONS } from "../api/tmdb";
 import Spinner from "../components/Spinner";
 import CastSkeleton from "../components/CastSkeleton";
 import SimilarSkeleton from "../components/SimilarSkeleton";
+import { useFavorites } from "../store/useFavorites";
 
 export default function MovieDetails() {
   const { id } = useParams();
@@ -12,6 +13,9 @@ export default function MovieDetails() {
   const [credits, setCredits] = useState(null);
   const [similar, setSimilar] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { toggleFavorite, favorites } = useFavorites();
+
+  const favorite = movie ? favorites.some((m) => m.id === movie.id) : false;
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -70,7 +74,7 @@ export default function MovieDetails() {
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
         <button
-          className="mb-6 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition"
+          className="mb-6 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition cursor-pointer"
           onClick={() => navigate(-1)}
         >
           ← Back
@@ -90,7 +94,7 @@ export default function MovieDetails() {
           <div className="flex flex-col gap-4">
             <h1 className="text-3xl md:text-5xl font-bold">{movie.title}</h1>
 
-            <div className="text-sm text-gray-300 flex flex-wrap gap-3">
+            <div className="text-sm text-gray-300 flex flex-wrap gap-3 items-center">
               <span>⭐ {movie.vote_average?.toFixed(1)}</span>
               <span>•</span>
               <span>{movie.runtime} min</span>
@@ -98,6 +102,15 @@ export default function MovieDetails() {
               <span>{movie.release_date}</span>
               <span>•</span>
               <span>${movie.budget?.toLocaleString()}</span>
+
+              {movie && (
+                <button
+                  onClick={() => toggleFavorite(movie)}
+                  className="cursor-pointer p-2 bg-white/10 rounded-full hover:scale-110 transition"
+                >
+                  {favorite ? "❤️" : "🤍"}
+                </button>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-2">

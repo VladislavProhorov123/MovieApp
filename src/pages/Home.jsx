@@ -105,6 +105,9 @@ export default function Home() {
       <div className="pattern">
         <div className="wrapper">
           <header className="m-0">
+            <Link to='/favorites' className="text-white bg-white/10 px-4 py-2 rounded">
+              Favorites
+            </Link>
             <img
               src="./hero.png"
               alt="Hero Banner"
