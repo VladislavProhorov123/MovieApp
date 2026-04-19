@@ -5,6 +5,7 @@ import MovieCard from "../components/MovieCard";
 import useDebounce from "../hook/useDebounce";
 import { Link } from "react-router-dom";
 import { endpoints } from "../api/tmdb";
+import Select from "../components/Select";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 
@@ -28,39 +29,64 @@ export default function Home() {
   const [movieList, setMovieList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [filters, setFilters] = useState({
+    sort: "popularity.desc",
+    genre: "",
+    year: "",
+  });
+  const [genres, setGenres] = useState([]);
 
-  const moviesRef = useRef(null)
+  const moviesRef = useRef(null);
+
+  const fetchGenres = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/genre/movie/list`, API_OPTIONS);
+      const data = await res.json();
+      setGenres(data.genres || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const fetchMovies = async (query = "", pageNumber = 1) => {
     setIsLoading(true);
     setErrorMessage("");
+
     try {
-      const endpoint = query
-        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${pageNumber}`
-        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${pageNumber}`;
+      const endpoint = buildEndpoint(query, pageNumber);
 
       const response = await fetch(endpoint, API_OPTIONS);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
-      }
-
       const data = await response.json();
-
-      if (data.Response === "False") {
-        setErrorMessage(data.Error || "Failed to fetch movies");
-        setMovieList([]);
-        return;
-      }
 
       setMovieList(data.results || []);
       setTotalPage(data.total_pages || 1);
     } catch (error) {
-      console.error(`Error fetching movies: ${error}`);
-      setErrorMessage("Error fetching movies. Please try again later.");
+      console.error(error);
+      setErrorMessage("Error fetching movies");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const buildEndpoint = (query, pageNumber) => {
+    let url = query
+      ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+      : `${API_BASE_URL}/discover/movie`;
+
+    const params = new URLSearchParams({
+      page: pageNumber,
+      sort_by: filters.sort,
+    });
+
+    if (filters.genre) {
+      params.append("with_genres", filters.genre);
+    }
+
+    if (filters.year) {
+      params.append("primary_release_year", filters.year);
+    }
+
+    return `${url}?${params.toString()}`;
   };
 
   const fetchTrendingMovies = async () => {
@@ -81,7 +107,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchMovies(debouncedSearchTerm, page);
-  }, [debouncedSearchTerm, page]);
+  }, [debouncedSearchTerm, page, filters]);
 
   useEffect(() => {
     setPage(1);
@@ -92,20 +118,31 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if(moviesRef.current) {
+    setPage(1);
+  }, [filters]);
+
+  useEffect(() => {
+    if (moviesRef.current) {
       moviesRef.current.scrollIntoView({
         behavior: "smooth",
-        block: "start"
-      })
+        block: "start",
+      });
     }
-  }, [page])
+  }, [page]);
+
+  useEffect(() => {
+    fetchGenres();
+  }, []);
 
   return (
     <main>
       <div className="pattern">
         <div className="wrapper">
           <header className="m-0">
-            <Link to='/favorites' className="text-white bg-white/10 px-4 py-2 rounded">
+            <Link
+              to="/favorites"
+              className="text-white bg-white/10 px-4 py-2 rounded"
+            >
               Favorites
             </Link>
             <img
@@ -119,6 +156,47 @@ export default function Home() {
             </h1>
 
             <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+            <div className="w-full flex justify-center mt-6 mb-8">
+              <div className="flex flex-row flex-wrap justify-center items-end gap-6 max-w-5xl mx-auto">
+                <Select
+                  label="Sort"
+                  value={filters.sort}
+                  onChange={(v) => setFilters({ ...filters, sort: v })}
+                  options={[
+                    { value: "popularity.desc", label: "Popular" },
+                    { value: "vote_average.desc", label: "Top Rated" },
+                    { value: "release_date.desc", label: "Newest" },
+                  ]}
+                />
+
+                <Select
+                  label="Genre"
+                  value={filters.genre}
+                  onChange={(v) => setFilters({ ...filters, genre: v })}
+                  options={[
+                    { value: "", label: "All" },
+                    ...genres.map((g) => ({
+                      value: g.id,
+                      label: g.name,
+                    })),
+                  ]}
+                />
+
+                <Select
+                  label="Year"
+                  value={filters.year}
+                  onChange={(v) => setFilters({ ...filters, year: v })}
+                  options={[
+                    { value: "", label: "All" },
+                    ...Array.from({ length: 20 }, (_, i) => {
+                      const y = new Date().getFullYear() - i;
+                      return { value: y, label: y };
+                    }),
+                  ]}
+                />
+              </div>
+            </div>
           </header>
 
           <section className="trending">
