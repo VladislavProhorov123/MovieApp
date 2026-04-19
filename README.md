@@ -1,16 +1,91 @@
-# React + Vite
+# Movie App (React + TMDB API)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Современное React приложение для поиска и просмотра фильмов с использованием TMDB API.  
+Проект сделан для практики реальных фронтенд задач: работа с API, состояние, фильтрация, избранное, маршрутизация.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Стек
 
-## React Compiler
+- React (Vite)
+- React Router
+- Zustand (state management)
+- Tailwind CSS
+- TMDB API
+- LocalStorage (persist)
+- JavaScript (JSX)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🎬 Основной функционал
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 📌 Главная страница
+- список популярных фильмов
+- поиск фильмов (debounce)
+- пагинация
+- фильтры:
+  - сортировка (popular / top rated / newest)
+  - жанры
+  - год выпуска
+- trending секция
+
+---
+
+### 📄 Страница фильма (MovieDetails)
+- backdrop как hero фон с затемнением
+- постер фильма
+- рейтинг
+- длительность
+- бюджет
+- дата выхода
+- жанры
+- описание
+- актёры (grid)
+- похожие фильмы (кликабельные карточки)
+- переход на другой фильм без перезагрузки
+- кнопка назад
+
+---
+
+### ❤️ Избранное (Favorites)
+- добавление / удаление фильмов
+- Zustand store + persist (localStorage)
+- отдельная страница избранного
+- отображение карточек фильмов
+- кнопка назад
+- пустое состояние
+
+---
+
+## 🧠 Архитектура проекта
+- src/
+- api/ # TMDB API endpoints и конфиг
+components/ # UI компоненты (MovieCard, Search, Select, Spinner)
+- pages/ # Home, MovieDetails, Favorites
+- store/ # Zustand (favorites store)
+- hook/ # useDebounce
+
+---
+
+## 🔑 API (TMDB)
+
+Проект использует The Movie Database API.
+
+Сайт:
+https://www.themoviedb.org/
+
+---
+
+### 📦 .env файл
+
+Создай файл `.env`: VITE_TMDB_API_KEY=your_api_key
+
+---
+
+## ▶️ Запуск проекта
+
+### Установка зависимостей
+
+```bash
+npm install
+npm run dev
