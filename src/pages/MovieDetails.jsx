@@ -14,6 +14,7 @@ export default function MovieDetails() {
   const [similar, setSimilar] = useState([]);
   const [loading, setLoading] = useState(false);
   const { toggleFavorite, favorites } = useFavorites();
+  const [recommendations, setRecommendations] = useState([]);
 
   const favorite = movie ? favorites.some((m) => m.id === movie.id) : false;
 
@@ -22,7 +23,7 @@ export default function MovieDetails() {
       setLoading(true);
 
       try {
-        const [movieRes, creditsRes, similarRes] = await Promise.all([
+        const [movieRes, creditsRes, similarRes, recRes] = await Promise.all([
           fetch(`https://api.themoviedb.org/3/movie/${id}`, API_OPTIONS),
           fetch(
             `https://api.themoviedb.org/3/movie/${id}/credits`,
@@ -32,15 +33,21 @@ export default function MovieDetails() {
             `https://api.themoviedb.org/3/movie/${id}/similar`,
             API_OPTIONS,
           ),
+          fetch(
+            `https://api.themoviedb.org/3/movie/${id}/recommendations`,
+            API_OPTIONS,
+          ),
         ]);
 
         const movieData = await movieRes.json();
         const creditsData = await creditsRes.json();
         const similarData = await similarRes.json();
+        const recData = await recRes.json();
 
         setMovie(movieData);
         setCredits(creditsData);
         setSimilar(similarData.results || []);
+        setRecommendations(recData.results || []);
       } catch (error) {
         console.error(error);
       } finally {
@@ -151,6 +158,37 @@ export default function MovieDetails() {
                     {actor.name}
                   </p>
                 </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-xl mb-4">Recommended For You</h2>
+          {loading ? (
+            <SimilarSkeleton />
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              {recommendations.slice(0, 10).map((movie) => (
+                <Link key={movie.id} to={`/movie/${movie.id}`}>
+                  <div className="bg-white/5 rounded-lg overflow-hidden hover:bg-white/10 transition">
+                    <img
+                      className="w-full h-[220px] object-cover"
+                      src={
+                        movie.poster_path
+                          ? `https://image.tmdb.org/t/p/w300/${movie.poster_path}`
+                          : "/no-movie.png"
+                      }
+                      alt={movie.title}
+                    />
+
+                    <div className="p-2">
+                      <p className="text-xs text-gray-300 line-clamp-1">
+                        {movie.title}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
           )}
