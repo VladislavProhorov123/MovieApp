@@ -6,6 +6,7 @@ import useDebounce from "../hook/useDebounce";
 import { Link } from "react-router-dom";
 import { endpoints } from "../api/tmdb";
 import Select from "../components/Select";
+import { useSearchHistory } from "../store/useSearchHistory";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 
@@ -35,6 +36,8 @@ export default function Home() {
     year: "",
   });
   const [genres, setGenres] = useState([]);
+  const { history, addSearch, clearHistory } = useSearchHistory();
+  const [isFocused, setIsFocused] = useState(false);
 
   const moviesRef = useRef(null);
 
@@ -69,9 +72,9 @@ export default function Home() {
   };
 
   const buildEndpoint = (query, pageNumber) => {
-    let url = query
-      ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-      : `${API_BASE_URL}/discover/movie`;
+    if (query) {
+      return `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${pageNumber}`;
+    }
 
     const params = new URLSearchParams({
       page: pageNumber,
@@ -86,7 +89,7 @@ export default function Home() {
       params.append("primary_release_year", filters.year);
     }
 
-    return `${url}?${params.toString()}`;
+    return `${API_BASE_URL}/discover/movie?${params.toString()}`;
   };
 
   const fetchTrendingMovies = async () => {
@@ -134,6 +137,13 @@ export default function Home() {
     fetchGenres();
   }, []);
 
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      addSearch(debouncedSearchTerm);
+    }
+
+  }, [debouncedSearchTerm]);
+
   return (
     <main>
       <div className="pattern">
@@ -155,8 +165,56 @@ export default function Home() {
               Without the Hassle
             </h1>
 
-            <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            <Search
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setTimeout(() => setIsFocused(false), 150)}
+            />
 
+            {isFocused && history.length > 0 && (
+              <div
+                className="max-w-3xl mx-auto mt-4 p-4 rounded-2xl 
+                  bg-white/5 backdrop-blur-xl border border-white/10
+                  shadow-lg"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Recent searches
+                  </p>
+
+                  <button
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      clearHistory();
+                    }}
+                    className="text-xs text-red-400 hover:text-red-300 transition cursor-pointer"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {history.map((item, i) => (
+                    <button
+                      key={i}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setSearchTerm(item);
+                        setIsFocused(false)
+                      }}
+                      className="px-4 py-1.5 text-sm rounded-full 
+                     bg-gradient-to-r from-[#1e1b4b] to-[#312e81]
+                     text-white/90
+                     hover:scale-105 hover:from-[#312e81] hover:to-[#4c1d95]
+                     transition-all duration-200 shadow-md cursor-pointer"
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="w-full flex justify-center mt-6 mb-8">
               <div className="flex flex-row flex-wrap justify-center items-end gap-6 max-w-5xl mx-auto">
                 <Select
