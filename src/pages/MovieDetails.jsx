@@ -15,6 +15,8 @@ export default function MovieDetails() {
   const [loading, setLoading] = useState(false);
   const { toggleFavorite, favorites } = useFavorites();
   const [recommendations, setRecommendations] = useState([]);
+  const [trailer, setTrailer] = useState(null);
+  const [showTrailer, setShowTrailer] = useState(false);
 
   const favorite = movie ? favorites.some((m) => m.id === movie.id) : false;
 
@@ -23,31 +25,42 @@ export default function MovieDetails() {
       setLoading(true);
 
       try {
-        const [movieRes, creditsRes, similarRes, recRes] = await Promise.all([
-          fetch(`https://api.themoviedb.org/3/movie/${id}`, API_OPTIONS),
-          fetch(
-            `https://api.themoviedb.org/3/movie/${id}/credits`,
-            API_OPTIONS,
-          ),
-          fetch(
-            `https://api.themoviedb.org/3/movie/${id}/similar`,
-            API_OPTIONS,
-          ),
-          fetch(
-            `https://api.themoviedb.org/3/movie/${id}/recommendations`,
-            API_OPTIONS,
-          ),
-        ]);
+        const [movieRes, creditsRes, similarRes, recRes, videoRes] =
+          await Promise.all([
+            fetch(`https://api.themoviedb.org/3/movie/${id}`, API_OPTIONS),
+            fetch(
+              `https://api.themoviedb.org/3/movie/${id}/credits`,
+              API_OPTIONS,
+            ),
+            fetch(
+              `https://api.themoviedb.org/3/movie/${id}/similar`,
+              API_OPTIONS,
+            ),
+            fetch(
+              `https://api.themoviedb.org/3/movie/${id}/recommendations`,
+              API_OPTIONS,
+            ),
+            fetch(
+              `https://api.themoviedb.org/3/movie/${id}/videos`,
+              API_OPTIONS,
+            ),
+          ]);
 
         const movieData = await movieRes.json();
         const creditsData = await creditsRes.json();
         const similarData = await similarRes.json();
         const recData = await recRes.json();
+        const videoData = await videoRes.json();
+
+        const youtubeTrailer = videoData.results?.find(
+          (v) => v.type === "Trailer" && v.site === "YouTube",
+        );
 
         setMovie(movieData);
         setCredits(creditsData);
         setSimilar(similarData.results || []);
         setRecommendations(recData.results || []);
+        setTrailer(youtubeTrailer || null);
       } catch (error) {
         console.error(error);
       } finally {
@@ -131,8 +144,31 @@ export default function MovieDetails() {
               ))}
             </div>
             <p className="text-gray-300 max-w-2xl">{movie.overview}</p>
+
+            {trailer && (
+              <button
+                onClick={() => setShowTrailer(true)}
+                className="px-4 py-2 bg-red-500/20 hover:bg-red-500/40 rounded transition cursor-pointer"
+              >
+                ▶ Watch Trailer
+              </button>
+            )}
           </div>
         </div>
+
+        {showTrailer && trailer && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setShowTrailer(false)}>
+            <div className="w-[90%] max-w-4xl aspect-video">
+              <iframe
+                className="w-full h-full rounded-xl"
+                src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1`}
+                title="Trailer"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        )}
 
         <section className="mt-12">
           <h2 className="text-xl mb-4">Cast</h2>

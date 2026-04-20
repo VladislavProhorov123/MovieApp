@@ -37,7 +37,7 @@ export default function ActorDetails() {
       <div className="relative z-10 max-w-7xl mx-auto px-5 py-10">
         <button
           onClick={() => navigate(-1)}
-          className="mb-8 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition"
+          className="mb-8 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition cursor-pointer"
         >
           ← Back
         </button>
