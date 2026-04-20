@@ -142,22 +142,24 @@ export default function MovieDetails() {
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-4">
               {credits.cast?.slice(0, 16).map((actor) => (
-                <div key={actor.id} className="text-center space-y-2">
-                  <div className="aspect-[3/4] rounded-lg overflow-hidden bg-white/5">
-                    <img
-                      className="w-full h-full object-cover"
-                      src={
-                        actor.profile_path
-                          ? `https://image.tmdb.org/t/p/w185/${actor.profile_path}`
-                          : "/no-avatar.png"
-                      }
-                      alt={actor.name}
-                    />
+                <Link key={actor.id} to={`/actor/${actor.id}`}>
+                  <div className="text-center space-y-2">
+                    <div className="aspect-[3/4] rounded-lg overflow-hidden bg-white/5">
+                      <img
+                        className="w-full h-full object-cover"
+                        src={
+                          actor.profile_path
+                            ? `https://image.tmdb.org/t/p/w185/${actor.profile_path}`
+                            : "/no-avatar.png"
+                        }
+                        alt={actor.name}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-300 line-clamp-1">
+                      {actor.name}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-300 line-clamp-1">
-                    {actor.name}
-                  </p>
-                </div>
+                </Link>
               ))}
             </div>
           )}

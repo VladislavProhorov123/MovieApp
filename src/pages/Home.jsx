@@ -141,7 +141,6 @@ export default function Home() {
     if (debouncedSearchTerm) {
       addSearch(debouncedSearchTerm);
     }
-
   }, [debouncedSearchTerm]);
 
   return (
@@ -149,12 +148,21 @@ export default function Home() {
       <div className="pattern">
         <div className="wrapper">
           <header className="m-0">
-            <Link
-              to="/favorites"
-              className="text-white bg-white/10 px-4 py-2 rounded"
-            >
-              Favorites
-            </Link>
+            <div className="flex gap-x-2">
+              <Link
+                to="/favorites"
+                className="text-white bg-white/10 px-4 py-2 rounded"
+              >
+                Favorites
+              </Link>
+              <Link
+                className="text-white bg-white/10 px-4 py-2 rounded"
+                to="/actors"
+              >
+                Actors
+              </Link>
+            </div>
+
             <img
               src="./hero.png"
               alt="Hero Banner"
@@ -201,7 +209,7 @@ export default function Home() {
                       onMouseDown={(e) => {
                         e.preventDefault();
                         setSearchTerm(item);
-                        setIsFocused(false)
+                        setIsFocused(false);
                       }}
                       className="px-4 py-1.5 text-sm rounded-full 
                      bg-gradient-to-r from-[#1e1b4b] to-[#312e81]
