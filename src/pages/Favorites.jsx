@@ -33,7 +33,10 @@ export default function Favorites() {
         ) : (
           <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
             {favorites.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
+              <Link to={`/movie/${movie.id}`} key={movie.id}>
+              <MovieCard  movie={movie} />
+              </Link>
+              
             ))}
           </ul>
         )}

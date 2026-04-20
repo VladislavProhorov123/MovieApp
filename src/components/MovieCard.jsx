@@ -24,7 +24,6 @@ export default function MovieCard({ movie }) {
    
   };
   return (
-    <Link to={`/movie/${id}`}>
       <div className="movie-card relative group cursor-pointer">
         <button
           className="absolute top-2 right-2 z-10 bg-black/60 p-2 rounded-full hover:scale-110 transition cursor-pointer"
@@ -59,6 +58,5 @@ export default function MovieCard({ movie }) {
           </div>
         </div>
       </div>
-    </Link>
   );
 }

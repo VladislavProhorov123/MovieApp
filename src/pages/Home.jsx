@@ -39,6 +39,7 @@ export default function Home() {
   const { history, addSearch, clearHistory } = useSearchHistory();
   const [isFocused, setIsFocused] = useState(false);
 
+  const isFirstRender = useRef(null);
   const moviesRef = useRef(null);
 
   const fetchGenres = async () => {
@@ -125,6 +126,11 @@ export default function Home() {
   }, [filters]);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     if (moviesRef.current) {
       moviesRef.current.scrollIntoView({
         behavior: "smooth",
@@ -132,6 +138,18 @@ export default function Home() {
       });
     }
   }, [page]);
+  
+  useEffect(() => {
+  if (isFirstRender.current) {
+    isFirstRender.current = false;
+    return;
+  }
+
+  moviesRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}, [page]);
 
   useEffect(() => {
     fetchGenres();
@@ -271,9 +289,13 @@ export default function Home() {
             {isTrendingLoading ? (
               <Spinner />
             ) : (
-              <ul>
+              <ul className="flex gap-4 overflow-x-auto hide-scrollbar">
                 {trendingMovies.slice(0, 5).map((movie) => (
-                  <Link key={movie.id} to={`/movie/${movie.id}`}>
+                  <Link
+                    key={movie.id}
+                    to={`/movie/${movie.id}`}
+                    className="min-w-[160px] sm:min-w-[180px]"
+                  >
                     <MovieCard movie={movie} />
                   </Link>
                 ))}
