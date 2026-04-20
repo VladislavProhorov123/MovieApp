@@ -1,91 +1,93 @@
-# Movie App (React + TMDB API)
+# 🎬 Movie App
 
-Современное React приложение для поиска и просмотра фильмов с использованием TMDB API.  
-Проект сделан для практики реальных фронтенд задач: работа с API, состояние, фильтрация, избранное, маршрутизация.
+Полноценное SPA-приложение для поиска фильмов, актеров и управления избранным.  
+Проект построен на React + TMDB API с нормальной архитектурой, а не учебной помойкой.
 
 ---
 
-## 🚀 Стек
+## 🚀 Features
 
-- React (Vite)
+### 🔍 Movies
+- Поиск фильмов (debounce)
+- Фильтрация:
+  - по жанру
+  - по году
+  - по рейтингу
+- Пагинация
+- Trending секция
+
+---
+
+### ❤️ Favorites
+- Добавление/удаление фильмов
+- Persist через Zustand (localStorage)
+- Отдельная страница избранного
+
+---
+
+### 🎭 Actors
+- Список популярных актеров
+- Поиск актеров
+- Пагинация
+- Страница актера:
+  - биография
+  - фильмы
+  - базовая информация
+
+---
+
+### 🎬 Movie Details
+- Полная информация о фильме
+- Cast (актеры)
+- Similar Movies
+- Recommendations (умный алгоритм)
+- Trailer (YouTube modal)
+
+---
+
+### 🧠 UX / UI
+- Debounced search
+- Search history
+- Custom Select
+- Responsive layout
+- Skeleton loaders
+- Dark theme
+
+---
+
+## 🧱 Tech Stack
+
+- React
 - React Router
-- Zustand (state management)
+- Zustand (persist)
 - Tailwind CSS
 - TMDB API
-- LocalStorage (persist)
-- JavaScript (JSX)
+- Vite
 
 ---
 
-## 🎬 Основной функционал
-
-### 📌 Главная страница
-- список популярных фильмов
-- поиск фильмов (debounce)
-- пагинация
-- фильтры:
-  - сортировка (popular / top rated / newest)
-  - жанры
-  - год выпуска
-- trending секция
-
----
-
-### 📄 Страница фильма (MovieDetails)
-- backdrop как hero фон с затемнением
-- постер фильма
-- рейтинг
-- длительность
-- бюджет
-- дата выхода
-- жанры
-- описание
-- актёры (grid)
-- похожие фильмы (кликабельные карточки)
-- переход на другой фильм без перезагрузки
-- кнопка назад
-
----
-
-### ❤️ Избранное (Favorites)
-- добавление / удаление фильмов
-- Zustand store + persist (localStorage)
-- отдельная страница избранного
-- отображение карточек фильмов
-- кнопка назад
-- пустое состояние
-
----
-
-## 🧠 Архитектура проекта
-- src/
-- api/ # TMDB API endpoints и конфиг
-components/ # UI компоненты (MovieCard, Search, Select, Spinner)
-- pages/ # Home, MovieDetails, Favorites
-- store/ # Zustand (favorites store)
-- hook/ # useDebounce
-
----
-
-## 🔑 API (TMDB)
-
-Проект использует The Movie Database API.
-
-Сайт:
-https://www.themoviedb.org/
-
----
-
-### 📦 .env файл
-
-Создай файл `.env`: VITE_TMDB_API_KEY=your_api_key
-
----
-
-## ▶️ Запуск проекта
-
-### Установка зависимостей
+## 📦 Installation
 
 ```bash
+git clone https://github.com/your-username/movie-app.git
+cd movie-app
 npm install
+```
+
+## 🔑 Environment Variables
+Создай .env файл:
+
+```bash
+VITE_TMDB_API_KEY=your_tmdb_token
+```
+
+## 🧪 Development
+
+```bash
 npm run dev
+```
+
+## 🏗 Build
+```bash
+npm run build
+```
