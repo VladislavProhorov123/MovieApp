@@ -1,7 +1,13 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export const useSearchHistory = create(
+type SearchHistoryState = {
+  history: string[]
+  addSearch: (query: string) => void
+  clearHistory: () => void
+}
+
+export const useSearchHistory = create<SearchHistoryState>()(
   persist(
     (set) => ({
       history: [],

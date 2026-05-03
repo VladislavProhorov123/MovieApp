@@ -1,8 +1,20 @@
-import React from "react";
 import { useFavorites } from "../store/useFavorites";
 import { Link } from "react-router-dom";
 
-export default function MovieCard({ movie }) {
+type Movie = {
+  id: number
+  title: string
+  vote_average?: number
+  poster_path?: string | null
+  release_date?: string
+  original_language?: string
+}
+
+type Props = {
+  movie: Movie
+}
+
+export default function MovieCard({ movie }: Props ) {
   const {
     id,
     title,
@@ -16,7 +28,7 @@ export default function MovieCard({ movie }) {
 
   const isFavorite = favorites.some((m) => m.id === id)
 
-  const handleFavorite = (e) => {
+  const handleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation()
     toggleFavorite(movie)

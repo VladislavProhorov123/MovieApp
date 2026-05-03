@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { API_OPTIONS } from "../api/tmdb";
 import Spinner from "../components/Spinner";
@@ -6,17 +6,61 @@ import CastSkeleton from "../components/CastSkeleton";
 import SimilarSkeleton from "../components/SimilarSkeleton";
 import { useFavorites } from "../store/useFavorites";
 
+type Genre = {
+  id: number
+  name: string
+}
+
+type Cast = {
+  id: number
+  name: string
+  profile_path?: string | null
+}
+
+type Movie = {
+  id: number
+  title: string
+  overview?: string
+  poster_path?: string | null
+  backdrop_path?: string | null
+  vote_average?: number
+  runtime?: number
+  release_date?: string
+  budget?: number
+  genres?: Genre[]
+}
+
+type Credits = {
+  cast: Cast[]
+}
+
+type Video = {
+  key: string
+  type: string
+  site: string
+}
+
+type ApiResponse<T> = {
+  results: T[]
+}
+
+
+
 export default function MovieDetails() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [movie, setMovie] = useState(null);
-  const [credits, setCredits] = useState(null);
-  const [similar, setSimilar] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const { toggleFavorite, favorites } = useFavorites();
-  const [recommendations, setRecommendations] = useState([]);
-  const [trailer, setTrailer] = useState(null);
-  const [showTrailer, setShowTrailer] = useState(false);
+const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+
+  const [movie, setMovie] = useState<Movie | null>(null)
+  const [credits, setCredits] = useState<Credits | null>(null)
+  const [similar, setSimilar] = useState<Movie[]>([])
+  const [recommendations, setRecommendations] = useState<Movie[]>([])
+  const [trailer, setTrailer] = useState<Video | null>(null)
+
+  const [loading, setLoading] = useState<boolean>(false)
+  const [showTrailer, setShowTrailer] = useState<boolean>(false)
+
+  const { toggleFavorite, favorites } = useFavorites()
+
 
   const favorite = movie ? favorites.some((m) => m.id === movie.id) : false;
 
@@ -46,15 +90,15 @@ export default function MovieDetails() {
             ),
           ]);
 
-        const movieData = await movieRes.json();
-        const creditsData = await creditsRes.json();
-        const similarData = await similarRes.json();
-        const recData = await recRes.json();
-        const videoData = await videoRes.json();
+        const movieData: Movie = await movieRes.json()
+        const creditsData: Credits = await creditsRes.json()
+        const similarData: ApiResponse<Movie> = await similarRes.json()
+        const recData: ApiResponse<Movie> = await recRes.json()
+        const videoData: { results: Video[] } = await videoRes.json()
 
         const youtubeTrailer = videoData.results?.find(
-          (v) => v.type === "Trailer" && v.site === "YouTube",
-        );
+          (v) => v.type === "Trailer" && v.site === "YouTube"
+        )
 
         setMovie(movieData);
         setCredits(creditsData);

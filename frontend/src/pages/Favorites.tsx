@@ -1,4 +1,3 @@
-import React from "react";
 import { useFavorites } from "../store/useFavorites";
 import { Link, useNavigate } from "react-router-dom";
 import MovieCard from "../components/MovieCard";

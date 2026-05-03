@@ -5,9 +5,27 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  favorites Favorite[]
+}
+
+model Favorite {
+  id        String @id @default(uuid())
+  userId    String
+  movieId   String
+
+  user      User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, movieId])
 }

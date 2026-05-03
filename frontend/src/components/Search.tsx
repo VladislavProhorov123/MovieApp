@@ -1,6 +1,13 @@
-import React from "react";
+import { ChangeEvent, FocusEvent } from "react"
 
-export default function Search({ searchTerm, setSearchTerm, onFocus, onBlur }) {
+type Props = {
+  searchTerm: string
+  setSearchTerm: (value: string) => void
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void
+  onBlur?: (e: FocusEvent<HTMLInputElement>) => void
+}
+
+export default function Search({ searchTerm, setSearchTerm, onFocus, onBlur }: Props) {
   return (
     <div className="search">
       <img

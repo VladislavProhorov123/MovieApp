@@ -2,11 +2,27 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { API_OPTIONS } from "../api/tmdb";
 
-export default function ActorDetails() {
-  const { id } = useParams();
+type Actor = {
+  id: number
+  name: string
+  profile_path?: string | null
+  birthday?: string
+  place_of_birth?: string
+  popularity?: number
+  biography?: string
+}
 
-  const [actor, setActor] = useState(null);
-  const [movies, setMovies] = useState([]);
+type Movie = {
+  id: number
+  title: string
+  poster_path?: string | null
+}
+
+export default function ActorDetails() {
+  const { id } = useParams<{id: string}>();
+
+  const [actor, setActor] = useState<Actor | null>(null);
+  const [movies, setMovies] = useState<Movie[]>([]);
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -19,8 +35,8 @@ export default function ActorDetails() {
         ),
       ]);
 
-      const actorData = await actorRes.json();
-      const moviesData = await moviesRes.json();
+      const actorData: Actor = await actorRes.json();
+      const moviesData: {cast : Movie[]} = await moviesRes.json();
 
       setActor(actorData);
       setMovies(moviesData.cast || []);

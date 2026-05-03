@@ -1,6 +1,19 @@
-import React from "react";
+import { ChangeEvent } from "react"
 
-export default function Select({ value, onChange, options, label }) {
+type Option = {
+  value: string
+  label: string
+}
+
+type Props = {
+  value: string
+  onChange: (value: string) => void
+  options: Option[]
+  label?: string
+}
+
+
+export default function Select({ value, onChange, options, label }: Props) {
   return (
     <div className="relative w-[180px] sm:w-[200px]">
       <label className="text-xs text-gray-400 mb-1 block">{label}</label>

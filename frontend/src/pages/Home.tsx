@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Search from "../components/Search";
 import Spinner from "../components/Spinner";
 import MovieCard from "../components/MovieCard";
@@ -7,6 +7,31 @@ import { Link } from "react-router-dom";
 import { endpoints } from "../api/tmdb";
 import Select from "../components/Select";
 import { useSearchHistory } from "../store/useSearchHistory";
+
+type Movie = {
+  id: number
+  title: string
+  poster_path?: string | null
+  vote_average?: number
+  release_date?: string
+}
+
+type Genre = {
+  id: number
+  name: string
+}
+
+type ApiResponse = {
+  results: Movie[]
+  total_pages: number
+}
+
+type Filters = {
+  sort: string
+  genre: string
+  year: string
+}
+
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 
@@ -21,31 +46,35 @@ const API_OPTIONS = {
 };
 
 export default function Home() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [trendingMovies, setTrendingMovies] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
-  const [isTrendingLoading, setIsTrendingLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [movieList, setMovieList] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const [filters, setFilters] = useState({
+  const [searchTerm, setSearchTerm] = useState<string>("")
+  const [trendingMovies, setTrendingMovies] = useState<Movie[]>([])
+  const [page, setPage] = useState<number>(1)
+  const [totalPage, setTotalPage] = useState<number>(1)
+  const [isTrendingLoading, setIsTrendingLoading] = useState<boolean>(false)
+  const [errorMessage, setErrorMessage] = useState<string>("")
+  const [movieList, setMovieList] = useState<Movie[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const debouncedSearchTerm = useDebounce<string>(searchTerm, 500)
+
+  const [filters, setFilters] = useState<Filters>({
     sort: "popularity.desc",
     genre: "",
     year: "",
-  });
-  const [genres, setGenres] = useState([]);
-  const { history, addSearch, clearHistory } = useSearchHistory();
-  const [isFocused, setIsFocused] = useState(false);
+  })
 
-  const isFirstRender = useRef(null);
-  const moviesRef = useRef(null);
+  const [genres, setGenres] = useState<Genre[]>([])
+  const { history, addSearch, clearHistory } = useSearchHistory()
+  const [isFocused, setIsFocused] = useState<boolean>(false)
+
+  const isFirstRender = useRef<boolean>(true)
+  const moviesRef = useRef<HTMLDivElement | null>(null)
+
 
   const fetchGenres = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/genre/movie/list`, API_OPTIONS);
-      const data = await res.json();
+      const data: { genres: Genre[] } = await res.json();
       setGenres(data.genres || []);
     } catch (error) {
       console.error(error);
@@ -72,13 +101,13 @@ export default function Home() {
     }
   };
 
-  const buildEndpoint = (query, pageNumber) => {
+  const buildEndpoint = (query: string, pageNumber: number) => {
     if (query) {
       return `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${pageNumber}`;
     }
 
     const params = new URLSearchParams({
-      page: pageNumber,
+      page: String(pageNumber),
       sort_by: filters.sort,
     });
 

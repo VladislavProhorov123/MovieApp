@@ -1,7 +1,20 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export const useFavorites = create(
+type Movie = {
+  id: number
+  title: string
+  poster_path?: string
+  vote_average?: number
+}
+
+type FavoritesState = {
+  favorites: Movie[]
+  toggleFavorite: (movie: Movie) => void
+  isFavorite: (id: number) => boolean
+}
+
+export const useFavorites = create<FavoritesState>()(
   persist(
     (set, get) => ({
       favorites: [],
