@@ -7,60 +7,57 @@ import SimilarSkeleton from "../components/SimilarSkeleton";
 import { useFavorites } from "../store/useFavorites";
 
 type Genre = {
-  id: number
-  name: string
-}
+  id: number;
+  name: string;
+};
 
 type Cast = {
-  id: number
-  name: string
-  profile_path?: string | null
-}
+  id: number;
+  name: string;
+  profile_path?: string | null;
+};
 
 type Movie = {
-  id: number
-  title: string
-  overview?: string
-  poster_path?: string | null
-  backdrop_path?: string | null
-  vote_average?: number
-  runtime?: number
-  release_date?: string
-  budget?: number
-  genres?: Genre[]
-}
+  id: number;
+  title: string;
+  overview?: string;
+  poster_path?: string | null;
+  backdrop_path?: string | null;
+  vote_average?: number;
+  runtime?: number;
+  release_date?: string;
+  budget?: number;
+  genres?: Genre[];
+};
 
 type Credits = {
-  cast: Cast[]
-}
+  cast: Cast[];
+};
 
 type Video = {
-  key: string
-  type: string
-  site: string
-}
+  key: string;
+  type: string;
+  site: string;
+};
 
 type ApiResponse<T> = {
-  results: T[]
-}
-
-
+  results: T[];
+};
 
 export default function MovieDetails() {
-const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
-  const [movie, setMovie] = useState<Movie | null>(null)
-  const [credits, setCredits] = useState<Credits | null>(null)
-  const [similar, setSimilar] = useState<Movie[]>([])
-  const [recommendations, setRecommendations] = useState<Movie[]>([])
-  const [trailer, setTrailer] = useState<Video | null>(null)
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [credits, setCredits] = useState<Credits | null>(null);
+  const [similar, setSimilar] = useState<Movie[]>([]);
+  const [recommendations, setRecommendations] = useState<Movie[]>([]);
+  const [trailer, setTrailer] = useState<Video | null>(null);
 
-  const [loading, setLoading] = useState<boolean>(false)
-  const [showTrailer, setShowTrailer] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showTrailer, setShowTrailer] = useState<boolean>(false);
 
-  const { toggleFavorite, favorites } = useFavorites()
-
+  const { toggleFavorite, favorites } = useFavorites();
 
   const favorite = movie ? favorites.some((m) => m.id === movie.id) : false;
 
@@ -90,15 +87,15 @@ const { id } = useParams<{ id: string }>()
             ),
           ]);
 
-        const movieData: Movie = await movieRes.json()
-        const creditsData: Credits = await creditsRes.json()
-        const similarData: ApiResponse<Movie> = await similarRes.json()
-        const recData: ApiResponse<Movie> = await recRes.json()
-        const videoData: { results: Video[] } = await videoRes.json()
+        const movieData: Movie = await movieRes.json();
+        const creditsData: Credits = await creditsRes.json();
+        const similarData: ApiResponse<Movie> = await similarRes.json();
+        const recData: ApiResponse<Movie> = await recRes.json();
+        const videoData: { results: Video[] } = await videoRes.json();
 
         const youtubeTrailer = videoData.results?.find(
-          (v) => v.type === "Trailer" && v.site === "YouTube"
-        )
+          (v) => v.type === "Trailer" && v.site === "YouTube",
+        );
 
         setMovie(movieData);
         setCredits(creditsData);
@@ -201,7 +198,10 @@ const { id } = useParams<{ id: string }>()
         </div>
 
         {showTrailer && trailer && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setShowTrailer(false)}>
+          <div
+            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+            onClick={() => setShowTrailer(false)}
+          >
             <div className="w-[90%] max-w-4xl aspect-video">
               <iframe
                 className="w-full h-full rounded-xl"

@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt'
 import jwt from "jsonwebtoken";
-import { prisma } from '../lib/prisma.js';
+import { prisma } from '../lib/prisma';
 
 const JWT_SECRET = process.env.JWT_SECRET
 const JWT_EXPIRES_IN = "7d"
 
-export async function registerUser(email, password) {
+export async function registerUser(email: string, password: string) {
   const existingUser = await prisma.user.findUnique({
     where: { email }
   })
@@ -39,7 +39,7 @@ export async function registerUser(email, password) {
   }
 }
 
-export async function loginUser(email, password) {
+export async function loginUser(email: string, password: string) {
   const user = await prisma.user.findUnique({
     where: { email }
   })
