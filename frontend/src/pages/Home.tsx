@@ -73,6 +73,7 @@ export default function Home() {
 
   const user = useAuth((s) => s.user);
   const [showAuth, setShowAuth] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false)
 
   const fetchGenres = async () => {
     try {
@@ -198,7 +199,7 @@ export default function Home() {
       <div className="pattern">
         <div className="wrapper">
           <header className="m-0">
-            <div className="flex gap-x-2">
+            <div className="flex items-center gap-x-2">
               <Link
                 to="/favorites"
                 className="text-white bg-white/10 px-4 py-2 rounded"
@@ -211,10 +212,24 @@ export default function Home() {
               >
                 Actors
               </Link>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 relative">
                 {user ? (
-                  <div className="text-white text-sm bg-white/10 px-3 py-1 rounded-lg">
-                    {user.email}
+                  <div className="relative" >
+                    <button className="flex items-center gap-2 text-white text-sm bg-white/10 px-3 py-2 rounded-lg cursor-pointer" onClick={() => setOpenMenu((p) => !p)}>
+                      {user.email}
+                    <span className="text-sm">▼</span>
+                    </button>
+                    
+                    {openMenu && (
+                      <div className="absolute right-0 mt-2 w-40 bg-[#0f0f1a] border border-white/10 rounded-lg shadow-lg overflow-hidden z-50">
+                        <button onClick={() => {
+                          useAuth.getState().logout()
+                          setOpenMenu(false)
+                        }} className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-500/10 transition">
+                          Logout
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <button

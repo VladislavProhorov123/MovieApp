@@ -34,10 +34,26 @@ export default function AuthModal({ onClose }: Props) {
       />
 
       {/* modal */}
-      <div className="relative w-[360px] bg-[#0f0f1a] border border-white/10 rounded-2xl p-6 shadow-2xl animate-[fadeIn_0.2s_ease-out]">
+      <div className="relative w-[360px] bg-[#0f0f1a] border border-white/10 rounded-2xl p-6 shadow-2xl animate-[fadeIn_0.2s_ease-out] flex flex-col items">
         <h2 className="text-xl font-semibold text-white mb-4">
           {mode === "login" ? "Login" : "Create account"}
         </h2>
+
+        <div className="flex gap-2 text-sm text-gray-400 mb-4">
+          <button
+            onClick={() => setMode("login")}
+            className={mode === "login" ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-2 rounded-lg cursor-pointer" : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg cursor-pointer"}
+          >
+            Login
+          </button>
+
+          <button
+            onClick={() => setMode("register")}
+            className={mode === "register" ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-2 rounded-lg cursor-pointer" : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg cursor-pointer"}
+          >
+            Register
+          </button>
+        </div>
 
         <input
           className="w-full p-3 mb-3 rounded-lg bg-white/5 text-white outline-none border border-white/10"
@@ -56,30 +72,16 @@ export default function AuthModal({ onClose }: Props) {
 
         <button
           onClick={handleSubmit}
-          className="w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 transition"
+          className="w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 transition cursor-pointer text-white"
         >
           {mode === "login" ? "Login" : "Register"}
         </button>
 
-        <div className="flex justify-between mt-4 text-sm text-gray-400">
-          <button
-            onClick={() => setMode("login")}
-            className={mode === "login" ? "text-white" : ""}
-          >
-            Login
-          </button>
-
-          <button
-            onClick={() => setMode("register")}
-            className={mode === "register" ? "text-white" : ""}
-          >
-            Register
-          </button>
-        </div>
+        
 
         <button
           onClick={onClose}
-          className="mt-5 text-xs text-gray-500 hover:text-white w-full"
+          className="mt-5 text-xs text-gray-500 hover:text-white w-full cursor-pointer"
         >
           Close
         </button>
