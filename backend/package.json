@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx tsx  src/server.ts"
+    "dev": "npx tsx  src/server.ts",
+    "start": "tsx src/server.ts"
   },
   "keywords": [],
   "author": "",
