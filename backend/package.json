@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx tsx  src/server.ts",
+    "dev": "tsx src/server.ts",
+    "build": "tsc",
     "start": "tsx src/server.ts",
     "postinstall": "prisma generate"
-
   },
   "keywords": [],
   "author": "",
