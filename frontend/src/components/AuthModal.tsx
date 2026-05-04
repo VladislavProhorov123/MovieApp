@@ -1,59 +1,89 @@
-import { useState } from "react";
-import { useAuth } from "../store/useAuth";
-import { login, register } from "../api/auth";
+import { useState } from "react"
+import { login, register } from "../api/auth"
+import { useAuth } from "../store/useAuth"
 
-export default function AuthModal({ onClose }: {onClose: () => void}) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const setAuth = useAuth((s) => s.setAuth);
+type Props = {
+  onClose: () => void
+}
 
-  const handleRegister = async () => {
-    const data = await register(email, password);
+export default function AuthModal({ onClose }: Props) {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [mode, setMode] = useState<"login" | "register">("login")
+
+  const setAuth = useAuth((s) => s.setAuth)
+
+  const handleSubmit = async () => {
+    const data =
+      mode === "login"
+        ? await login(email, password)
+        : await register(email, password)
 
     if (data.token) {
-      setAuth(data.user, data.token);
-      onClose();
+      setAuth(data.user, data.token)
+      onClose()
     }
-  };
-
-  const handleLogin = async () => {
-    const data = await login(email, password);
-
-    if (data.token) {
-      setAuth(data.user, data.token);
-      onClose();
-    }
-  };
+  }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center">
-      <div className="bg-black p-6 rounded-xl w-[320px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* backdrop */}
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* modal */}
+      <div className="relative w-[360px] bg-[#0f0f1a] border border-white/10 rounded-2xl p-6 shadow-2xl animate-[fadeIn_0.2s_ease-out]">
+        <h2 className="text-xl font-semibold text-white mb-4">
+          {mode === "login" ? "Login" : "Create account"}
+        </h2>
+
         <input
-          placeholder="email"
+          className="w-full p-3 mb-3 rounded-lg bg-white/5 text-white outline-none border border-white/10"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 mb-2"
         />
 
         <input
-          placeholder="password"
+          className="w-full p-3 mb-4 rounded-lg bg-white/5 text-white outline-none border border-white/10"
+          placeholder="Password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 mb-4"
         />
 
-        <div className="flex gap-2">
-          <button onClick={handleRegister}>Register</button>
-          <button onClick={handleLogin}>Login</button>
-        </div>
-
-        <button onClick={onClose} className="mt-4 text-sm">
-          Close
+        <button
+          onClick={handleSubmit}
+          className="w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 transition"
+        >
+          {mode === "login" ? "Login" : "Register"}
         </button>
 
-      </div>
+        <div className="flex justify-between mt-4 text-sm text-gray-400">
+          <button
+            onClick={() => setMode("login")}
+            className={mode === "login" ? "text-white" : ""}
+          >
+            Login
+          </button>
 
+          <button
+            onClick={() => setMode("register")}
+            className={mode === "register" ? "text-white" : ""}
+          >
+            Register
+          </button>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="mt-5 text-xs text-gray-500 hover:text-white w-full"
+        >
+          Close
+        </button>
+      </div>
     </div>
-  );
+  )
 }

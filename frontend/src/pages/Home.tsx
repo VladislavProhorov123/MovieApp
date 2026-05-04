@@ -7,31 +7,32 @@ import { Link } from "react-router-dom";
 import { endpoints } from "../api/tmdb";
 import Select from "../components/Select";
 import { useSearchHistory } from "../store/useSearchHistory";
+import { useAuth } from "../store/useAuth";
+import AuthModal from "../components/AuthModal";
 
 type Movie = {
-  id: number
-  title: string
-  poster_path?: string | null
-  vote_average?: number
-  release_date?: string
-}
+  id: number;
+  title: string;
+  poster_path?: string | null;
+  vote_average?: number;
+  release_date?: string;
+};
 
 type Genre = {
-  id: number
-  name: string
-}
+  id: number;
+  name: string;
+};
 
 type ApiResponse = {
-  results: Movie[]
-  total_pages: number
-}
+  results: Movie[];
+  total_pages: number;
+};
 
 type Filters = {
-  sort: string
-  genre: string
-  year: string
-}
-
+  sort: string;
+  genre: string;
+  year: string;
+};
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 
@@ -46,30 +47,32 @@ const API_OPTIONS = {
 };
 
 export default function Home() {
-  const [searchTerm, setSearchTerm] = useState<string>("")
-  const [trendingMovies, setTrendingMovies] = useState<Movie[]>([])
-  const [page, setPage] = useState<number>(1)
-  const [totalPage, setTotalPage] = useState<number>(1)
-  const [isTrendingLoading, setIsTrendingLoading] = useState<boolean>(false)
-  const [errorMessage, setErrorMessage] = useState<string>("")
-  const [movieList, setMovieList] = useState<Movie[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [totalPage, setTotalPage] = useState<number>(1);
+  const [isTrendingLoading, setIsTrendingLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [movieList, setMovieList] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const debouncedSearchTerm = useDebounce<string>(searchTerm, 500)
+  const debouncedSearchTerm = useDebounce<string>(searchTerm, 500);
 
   const [filters, setFilters] = useState<Filters>({
     sort: "popularity.desc",
     genre: "",
     year: "",
-  })
+  });
 
-  const [genres, setGenres] = useState<Genre[]>([])
-  const { history, addSearch, clearHistory } = useSearchHistory()
-  const [isFocused, setIsFocused] = useState<boolean>(false)
+  const [genres, setGenres] = useState<Genre[]>([]);
+  const { history, addSearch, clearHistory } = useSearchHistory();
+  const [isFocused, setIsFocused] = useState<boolean>(false);
 
-  const isFirstRender = useRef<boolean>(true)
-  const moviesRef = useRef<HTMLDivElement | null>(null)
+  const isFirstRender = useRef<boolean>(true);
+  const moviesRef = useRef<HTMLDivElement | null>(null);
 
+  const user = useAuth((s) => s.user);
+  const [showAuth, setShowAuth] = useState(false);
 
   const fetchGenres = async () => {
     try {
@@ -167,18 +170,18 @@ export default function Home() {
       });
     }
   }, [page]);
-  
-  useEffect(() => {
-  if (isFirstRender.current) {
-    isFirstRender.current = false;
-    return;
-  }
 
-  moviesRef.current?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
-}, [page]);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    moviesRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [page]);
 
   useEffect(() => {
     fetchGenres();
@@ -208,6 +211,20 @@ export default function Home() {
               >
                 Actors
               </Link>
+              <div className="flex items-center gap-3">
+                {user ? (
+                  <div className="text-white text-sm bg-white/10 px-3 py-1 rounded-lg">
+                    {user.email}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowAuth(true)}
+                    className="text-white bg-white/10 px-4 py-2 rounded cursor-pointer"
+                  >
+                    Login
+                  </button>
+                )}
+              </div>
             </div>
 
             <img
@@ -375,6 +392,7 @@ export default function Home() {
           </button>
         </div>
       </div>
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </main>
   );
 }

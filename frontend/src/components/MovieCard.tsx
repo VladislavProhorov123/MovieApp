@@ -1,5 +1,8 @@
+import { useState } from "react";
+import { useAuth } from "../store/useAuth";
 import { useFavorites } from "../store/useFavorites";
 import { Link } from "react-router-dom";
+import AuthModal from "./AuthModal";
 
 type Movie = {
   id: number
@@ -26,15 +29,23 @@ export default function MovieCard({ movie }: Props ) {
 
   const {favorites, toggleFavorite } = useFavorites();
 
+  const { user } = useAuth()
+  const [showAuth, setShowAuth] = useState(false)
+
   const isFavorite = favorites.some((m) => m.id === id)
 
   const handleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation()
-    toggleFavorite(movie)
 
-   
+    if (!user) {
+  setShowAuth(true)
+  return
+}
+    toggleFavorite(movie)
   };
+
+  
   return (
       <div className="movie-card relative group cursor-pointer">
         <button
@@ -69,6 +80,8 @@ export default function MovieCard({ movie }: Props ) {
             </p>
           </div>
         </div>
+
+        {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
       </div>
   );
 }

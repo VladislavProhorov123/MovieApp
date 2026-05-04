@@ -5,6 +5,8 @@ import Spinner from "../components/Spinner";
 import CastSkeleton from "../components/CastSkeleton";
 import SimilarSkeleton from "../components/SimilarSkeleton";
 import { useFavorites } from "../store/useFavorites";
+import { useAuth } from "../store/useAuth";
+import AuthModal from "../components/AuthModal";
 
 type Genre = {
   id: number;
@@ -53,7 +55,8 @@ export default function MovieDetails() {
   const [similar, setSimilar] = useState<Movie[]>([]);
   const [recommendations, setRecommendations] = useState<Movie[]>([]);
   const [trailer, setTrailer] = useState<Video | null>(null);
-
+  const { user } = useAuth()
+  const [showAuth, setShowAuth] = useState(false)
   const [loading, setLoading] = useState<boolean>(false);
   const [showTrailer, setShowTrailer] = useState<boolean>(false);
 
@@ -119,6 +122,17 @@ export default function MovieDetails() {
       </div>
     );
   }
+
+  const handleFavorite = () => {
+    if(!user) {
+      setShowAuth(true)
+      return
+    }
+
+    if(movie) {
+      toggleFavorite(movie)
+    }
+  }
   return (
     <div className="min-h-screen text-white relative">
       <div
@@ -166,7 +180,7 @@ export default function MovieDetails() {
 
               {movie && (
                 <button
-                  onClick={() => toggleFavorite(movie)}
+                  onClick={handleFavorite}
                   className="cursor-pointer p-2 bg-white/10 rounded-full hover:scale-110 transition"
                 >
                   {favorite ? "❤️" : "🤍"}
@@ -308,6 +322,7 @@ export default function MovieDetails() {
           )}
         </section>
       </div>
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </div>
   );
 }
