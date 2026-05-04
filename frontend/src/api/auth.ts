@@ -1,4 +1,4 @@
-const API = "http://localhost:3001/api/auth"
+const API = "https://movieapp-6-8c4k.onrender.com/api/auth"
 
 export async function register(email: string, password: string) {
   const res = await fetch(`${API}/register`, {
