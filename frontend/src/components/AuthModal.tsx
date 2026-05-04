@@ -1,29 +1,29 @@
-import { useState } from "react"
-import { login, register } from "../api/auth"
-import { useAuth } from "../store/useAuth"
+import { useState } from "react";
+import { login, register } from "../api/auth";
+import { useAuth } from "../store/useAuth";
 
 type Props = {
-  onClose: () => void
-}
+  onClose: () => void;
+};
 
 export default function AuthModal({ onClose }: Props) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [mode, setMode] = useState<"login" | "register">("login")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"login" | "register">("login");
 
-  const setAuth = useAuth((s) => s.setAuth)
+  const setAuth = useAuth((s) => s.setAuth);
 
   const handleSubmit = async () => {
     const data =
       mode === "login"
         ? await login(email, password)
-        : await register(email, password)
+        : await register(email, password);
 
     if (data.token) {
-      setAuth(data.user, data.token)
-      onClose()
+      setAuth(data.user, data.token);
+      onClose();
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -42,14 +42,22 @@ export default function AuthModal({ onClose }: Props) {
         <div className="flex gap-2 text-sm text-gray-400 mb-4">
           <button
             onClick={() => setMode("login")}
-            className={mode === "login" ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-2 rounded-lg cursor-pointer" : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg cursor-pointer"}
+            className={
+              mode === "login"
+                ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-2 rounded-lg cursor-pointer"
+                : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg cursor-pointer"
+            }
           >
             Login
           </button>
 
           <button
             onClick={() => setMode("register")}
-            className={mode === "register" ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-2 rounded-lg cursor-pointer" : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg cursor-pointer"}
+            className={
+              mode === "register"
+                ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-2 rounded-lg cursor-pointer"
+                : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg cursor-pointer"
+            }
           >
             Register
           </button>
@@ -72,12 +80,11 @@ export default function AuthModal({ onClose }: Props) {
 
         <button
           onClick={handleSubmit}
-          className="w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 transition cursor-pointer text-white"
+          className="w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 transition cursor-pointer text-white flex items-center justify-center gap-2"
         >
+          {" "}
           {mode === "login" ? "Login" : "Register"}
         </button>
-
-        
 
         <button
           onClick={onClose}
@@ -87,5 +94,5 @@ export default function AuthModal({ onClose }: Props) {
         </button>
       </div>
     </div>
-  )
+  );
 }

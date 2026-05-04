@@ -9,6 +9,7 @@ import Select from "../components/Select";
 import { useSearchHistory } from "../store/useSearchHistory";
 import { useAuth } from "../store/useAuth";
 import AuthModal from "../components/AuthModal";
+import { Heart, User, LogOut, UserPlus, Clapperboard } from "lucide-react";
 
 type Movie = {
   id: number;
@@ -199,23 +200,26 @@ export default function Home() {
       <div className="pattern">
         <div className="wrapper">
           <header className="m-0">
-            <div className="flex items-center gap-x-2">
+            <div className="flex items-center gap-2 flex-wrap sm:gap-x-2">
               <Link
                 to="/favorites"
-                className="text-white bg-white/10 px-4 py-2 rounded"
+                className="text-white bg-white/10 px-4 py-2 rounded flex items-center justify-center gap-1"
               >
+                <Heart size={20} />
                 Favorites
               </Link>
               <Link
-                className="text-white bg-white/10 px-4 py-2 rounded"
+                className="text-white bg-white/10 px-4 py-2 rounded flex items-center justify-center gap-1"
                 to="/actors"
               >
+                <Clapperboard size={20} />
                 Actors
               </Link>
               <div className="flex items-center gap-3 relative">
                 {user ? (
-                  <div className="relative" >
+                  <div className="relative">
                     <button className="flex items-center gap-2 text-white text-sm bg-white/10 px-3 py-2 rounded-lg cursor-pointer" onClick={() => setOpenMenu((p) => !p)}>
+                    <User />
                       {user.email}
                     <span className="text-sm">▼</span>
                     </button>
@@ -225,7 +229,8 @@ export default function Home() {
                         <button onClick={() => {
                           useAuth.getState().logout()
                           setOpenMenu(false)
-                        }} className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-500/10 transition">
+                        }} className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-500/10 transition flex items-center justify-center gap-1 cursor-pointer">
+                          <LogOut />
                           Logout
                         </button>
                       </div>
@@ -234,8 +239,9 @@ export default function Home() {
                 ) : (
                   <button
                     onClick={() => setShowAuth(true)}
-                    className="text-white bg-white/10 px-4 py-2 rounded cursor-pointer"
+                    className="text-white bg-white/10 px-4 py-2 rounded cursor-pointer flex justify-center items-center gap-1"
                   >
+                    <UserPlus />
                     Login
                   </button>
                 )}
@@ -411,3 +417,5 @@ export default function Home() {
     </main>
   );
 }
+
+
