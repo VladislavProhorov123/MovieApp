@@ -1,13 +1,23 @@
 import { registerUser, loginUser } from "../services/auth.service"
 import { Request, Response } from 'express'
+import { verifyCaptcha } from "../services/captcha.service"
 
 export async function register(req: Request, res: Response) {
   try {
-    const { email, password } = req.body
+    const { email, password, captcha } = req.body
 
-    if(!email || !password) {
+    if(!email || !password || !captcha) {
       return res.status(400).json({
-        message: "Email и пароль обязательны"
+        message: "Email, пароль и капча обязательны"
+      })
+    }
+
+    const captchaRes = await verifyCaptcha(captcha)
+
+    if(!captchaRes.success) {
+      return res.status(400).json({
+        message: "Капча не пройдена",
+        errors: captchaRes['error-codes']
       })
     }
 
@@ -23,11 +33,20 @@ export async function register(req: Request, res: Response) {
 
 export async function login(req: Request, res: Response) {
   try {
-    const { email, password } = req.body
+    const { email, password, captcha } = req.body
 
-    if(!email || !password) {
+    if(!email || !password || !captcha) {
       return res.status(400).json({
-        message: "Email и пароль обязательны" 
+        message: "Email, пароль и капча обязательны"
+      })
+    }
+
+    const captchaRes = await verifyCaptcha(captcha)
+
+    if(!captchaRes.success) {
+      return res.status(400).json({
+        message: "Капча не пройдена",
+        errors: captchaRes['error-codes']
       })
     }
 
