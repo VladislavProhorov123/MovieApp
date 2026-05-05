@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { login, register } from "../api/auth";
 import { useAuth } from "../store/useAuth";
+import ReCAPTCHA from "react-google-recaptcha";
 
 type Props = {
   onClose: () => void;
@@ -10,14 +11,20 @@ export default function AuthModal({ onClose }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [captcha, setCaptcha] = useState<string | null>(null);
 
   const setAuth = useAuth((s) => s.setAuth);
 
   const handleSubmit = async () => {
+    if(!captcha) {
+      alert("Please complete the captcha");
+      return;
+    }
+
     const data =
       mode === "login"
-        ? await login(email, password)
-        : await register(email, password);
+        ? await login(email, password, captcha)
+        : await register(email, password, captcha);
 
     if (data.token) {
       setAuth(data.user, data.token);
@@ -78,8 +85,16 @@ export default function AuthModal({ onClose }: Props) {
           onChange={(e) => setPassword(e.target.value)}
         />
 
+        <div className="mb-4 flex justify-center">
+          <ReCAPTCHA
+            sitekey={import.meta.env.VITE_SITE_KEY}
+            onChange={(value) => setCaptcha(value)}
+          />
+        </div>
+
         <button
           onClick={handleSubmit}
+          disabled={!captcha}
           className="w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 transition cursor-pointer text-white flex items-center justify-center gap-2"
         >
           {" "}
