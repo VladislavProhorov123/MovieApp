@@ -11,6 +11,8 @@ import { useAuth } from "../store/useAuth";
 import AuthModal from "../components/AuthModal";
 import { Heart, User, LogOut, UserPlus, Clapperboard } from "lucide-react";
 import { useMovies } from "../hooks/useMovies";
+import { useTrendingMovies } from "../hooks/useTrendingMovies";
+import { useGenres } from "../hooks/useGenres";
 
 type Movie = {
   id: number;
@@ -40,7 +42,6 @@ export default function Home() {
     genre: "",
     year: "",
   });
-  const [genres, setGenres] = useState<Genre[]>([]);
   const { history, addSearch, clearHistory } = useSearchHistory();
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
@@ -51,17 +52,16 @@ export default function Home() {
   const [showAuth, setShowAuth] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
 
-  const { data, isLoading, error } = useMovies(debouncedSearchTerm, page, filters)
+  const { data, isLoading, error } = useMovies(
+    debouncedSearchTerm,
+    page,
+    filters,
+  );
 
-  const fetchGenres = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/genre/movie/list`, API_OPTIONS);
-      const data: { genres: Genre[] } = await res.json();
-      setGenres(data.genres || []);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const { data: trendingData, isLoading: isTrendingLoading } =
+    useTrendingMovies();
+
+  const { data: genresData } = useGenres();
 
   useEffect(() => {
     setPage(1);
@@ -72,34 +72,13 @@ export default function Home() {
   }, [filters]);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    if (moviesRef.current) {
-      moviesRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [page]);
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+    if (!data?.results?.length) return;
 
     moviesRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
-  }, [page]);
-
-  useEffect(() => {
-    fetchGenres();
-  }, []);
+  }, [data]);
 
   useEffect(() => {
     if (debouncedSearchTerm) {
@@ -245,10 +224,10 @@ export default function Home() {
                   onChange={(v) => setFilters({ ...filters, genre: v })}
                   options={[
                     { value: "", label: "All" },
-                    ...genres.map((g) => ({
-                      value: g.id,
+                    ...(genresData?.genres?.map((g: Genre) => ({
+                      value: String(g.id),
                       label: g.name,
-                    })),
+                    })) ?? []),
                   ]}
                 />
 
@@ -275,7 +254,7 @@ export default function Home() {
               <Spinner />
             ) : (
               <ul className="flex gap-4 overflow-x-auto hide-scrollbar">
-                {trendingMovies.slice(0, 5).map((movie) => (
+                {trendingData?.results?.slice(0, 5).map((movie) => (
                   <Link
                     key={movie.id}
                     to={`/movie/${movie.id}`}
