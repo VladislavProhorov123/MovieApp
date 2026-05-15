@@ -1,27 +1,26 @@
 import { useEffect, useState } from "react";
 import { API_BASE_URL, API_OPTIONS } from "../api/tmdb";
 import { Link, useNavigate } from "react-router-dom";
-import useDebounce from "../hook/useDebounce";
+import useDebounce from "../hooks/useDebounce";
 
 type Actor = {
-  id: number
-  name: string
-  profile_path?: string | null
-}
+  id: number;
+  name: string;
+  profile_path?: string | null;
+};
 
 type ApiResponse = {
-  results: Actor[]
-  total_pages: number
-}
-
+  results: Actor[];
+  total_pages: number;
+};
 
 export default function Actors() {
-  const [actors, setActors] = useState<Actor[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
-  const [page, setPage] = useState<number>(1)
-  const [totalPages, setTotalPages] = useState<number>(1)
+  const [actors, setActors] = useState<Actor[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
-  const [search, setSearch] = useState<string>("")
+  const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce<string>(search, 400);
 
   const navigate = useNavigate();

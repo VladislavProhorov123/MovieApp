@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Search from "../components/Search";
 import Spinner from "../components/Spinner";
 import MovieCard from "../components/MovieCard";
-import useDebounce from "../hook/useDebounce";
+import useDebounce from "../hooks/useDebounce";
 import { Link } from "react-router-dom";
 import { endpoints } from "../api/tmdb";
 import Select from "../components/Select";
@@ -10,6 +10,7 @@ import { useSearchHistory } from "../store/useSearchHistory";
 import { useAuth } from "../store/useAuth";
 import AuthModal from "../components/AuthModal";
 import { Heart, User, LogOut, UserPlus, Clapperboard } from "lucide-react";
+import { useMovies } from "../hooks/useMovies";
 
 type Movie = {
   id: number;
@@ -24,47 +25,21 @@ type Genre = {
   name: string;
 };
 
-type ApiResponse = {
-  results: Movie[];
-  total_pages: number;
-};
-
 type Filters = {
   sort: string;
   genre: string;
   year: string;
 };
 
-const API_BASE_URL = "https://api.themoviedb.org/3";
-
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-
-const API_OPTIONS = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization: `Bearer ${API_KEY}`,
-  },
-};
-
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
   const [page, setPage] = useState<number>(1);
-  const [totalPage, setTotalPage] = useState<number>(1);
-  const [isTrendingLoading, setIsTrendingLoading] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [movieList, setMovieList] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const debouncedSearchTerm = useDebounce<string>(searchTerm, 500);
-
   const [filters, setFilters] = useState<Filters>({
     sort: "popularity.desc",
     genre: "",
     year: "",
   });
-
   const [genres, setGenres] = useState<Genre[]>([]);
   const { history, addSearch, clearHistory } = useSearchHistory();
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -74,7 +49,9 @@ export default function Home() {
 
   const user = useAuth((s) => s.user);
   const [showAuth, setShowAuth] = useState(false);
-  const [openMenu, setOpenMenu] = useState(false)
+  const [openMenu, setOpenMenu] = useState(false);
+
+  const { data, isLoading, error } = useMovies(debouncedSearchTerm, page, filters)
 
   const fetchGenres = async () => {
     try {
@@ -86,74 +63,9 @@ export default function Home() {
     }
   };
 
-  const fetchMovies = async (query = "", pageNumber = 1) => {
-    setIsLoading(true);
-    setErrorMessage("");
-
-    try {
-      const endpoint = buildEndpoint(query, pageNumber);
-
-      const response = await fetch(endpoint, API_OPTIONS);
-      const data = await response.json();
-
-      setMovieList(data.results || []);
-      setTotalPage(data.total_pages || 1);
-    } catch (error) {
-      console.error(error);
-      setErrorMessage("Error fetching movies");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const buildEndpoint = (query: string, pageNumber: number) => {
-    if (query) {
-      return `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${pageNumber}`;
-    }
-
-    const params = new URLSearchParams({
-      page: String(pageNumber),
-      sort_by: filters.sort,
-    });
-
-    if (filters.genre) {
-      params.append("with_genres", filters.genre);
-    }
-
-    if (filters.year) {
-      params.append("primary_release_year", filters.year);
-    }
-
-    return `${API_BASE_URL}/discover/movie?${params.toString()}`;
-  };
-
-  const fetchTrendingMovies = async () => {
-    setIsTrendingLoading(true);
-
-    try {
-      const res = await fetch(endpoints.trending(), API_OPTIONS);
-
-      const data = await res.json();
-
-      setTrendingMovies(data.results || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsTrendingLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMovies(debouncedSearchTerm, page);
-  }, [debouncedSearchTerm, page, filters]);
-
   useEffect(() => {
     setPage(1);
   }, [debouncedSearchTerm]);
-
-  useEffect(() => {
-    fetchTrendingMovies();
-  }, []);
 
   useEffect(() => {
     setPage(1);
@@ -218,18 +130,24 @@ export default function Home() {
               <div className="flex items-center gap-3 relative">
                 {user ? (
                   <div className="relative">
-                    <button className="flex items-center gap-2 text-white text-sm bg-white/10 px-3 py-2 rounded-lg cursor-pointer" onClick={() => setOpenMenu((p) => !p)}>
-                    <User />
+                    <button
+                      className="flex items-center gap-2 text-white text-sm bg-white/10 px-3 py-2 rounded-lg cursor-pointer"
+                      onClick={() => setOpenMenu((p) => !p)}
+                    >
+                      <User />
                       {user.email}
-                    <span className="text-sm">▼</span>
+                      <span className="text-sm">▼</span>
                     </button>
-                    
+
                     {openMenu && (
                       <div className="absolute right-0 mt-2 w-40 bg-[#0f0f1a] border border-white/10 rounded-lg shadow-lg overflow-hidden z-50">
-                        <button onClick={() => {
-                          useAuth.getState().logout()
-                          setOpenMenu(false)
-                        }} className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-500/10 transition flex items-center justify-center gap-1 cursor-pointer">
+                        <button
+                          onClick={() => {
+                            useAuth.getState().logout();
+                            setOpenMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-500/10 transition flex items-center justify-center gap-1 cursor-pointer"
+                        >
                           <LogOut />
                           Logout
                         </button>
@@ -375,19 +293,17 @@ export default function Home() {
 
             {isLoading ? (
               <Spinner />
-            ) : errorMessage ? (
-              <p className="text-rose-500">{errorMessage}</p>
+            ) : error ? (
+              <p className="text-rose-500">{(error as Error).message}</p>
             ) : (
               <ul>
-                {movieList.map((movie) => (
+                {data?.results?.map((movie) => (
                   <Link key={movie.id} to={`/movie/${movie.id}`}>
                     <MovieCard movie={movie} />
                   </Link>
                 ))}
               </ul>
             )}
-
-            {errorMessage && <p className="text-red-500">{errorMessage}</p>}
           </section>
         </div>
 
@@ -401,11 +317,11 @@ export default function Home() {
           </button>
 
           <span className="text-sm text-gray-300">
-            Page {page} / {totalPage}
+            Page {page} / {data?.totalPage}
           </span>
 
           <button
-            disabled={page === totalPage}
+            disabled={page === data?.totalPage}
             onClick={() => setPage((p) => p + 1)}
             className="px-4 py-2 bg-white/10 rounded disabled:opacity-30 cursor-pointer"
           >
@@ -417,5 +333,3 @@ export default function Home() {
     </main>
   );
 }
-
-
